@@ -21,6 +21,35 @@ const fetchPlayers = async () => {
     }
 };
 
+const removePlayer = async (id) => {
+    try {
+        const response = await fetch(`${API}/players/${id}`, {
+            method: "DELETE"
+        });
+
+        if (!response.ok) {
+            throw new Error("Failed to remove player!");
+        }
+    } catch (err) {
+        console.error("Eroor removing player:", err)
+    }
+};
+
+const addPlayer = async (playerObj) => {
+    try {
+        const response = await fetch(`${API}/players`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(playerObj),
+        });
+        const result = await response.json();
+        return result;
+    } catch (err) {
+        console.error("Something whent wrong adding that puppy!", err);
+    }
+};
 
 const init = async () => {
     players = await fetchPlayers();
@@ -37,42 +66,67 @@ function render() {
             <p>Status: ${selectedPlayer.status}</p>
             <img src="${selectedPlayer.imageUrl}" alt="${selectedPlayer.name}">
             <button id="back-button">Back to Roster</button>
+            <button id="delete-button">Remove pup from roster</button>
             </div>`;
 
-        const backButton =document.querySelector('#back-button');
+        const backButton = document.querySelector('#back-button');        
         backButton.addEventListener('click', () => {
             selectedPlayer = null;
-            render()
-        })
-
-    } else {app.innerHTML = players.map(player => {
-        return `
-        <div class="player-card">
-        <h3>${player.name}</h3>
-        <img src="${player.imageUrl}" alt="${player.name}">
-        <button class="details-button" data-id="${player.id}">See Details</button>
-        </div>
-        `
-    }).join('');
-
-    const buttons = document.querySelectorAll('.details-button');
-        
-    buttons.forEach ((button) => {
-        button.addEventListener('click', () => {
-            console.log('youve clicked a button!');
-            playerString = button.dataset.id;
-            let playerId = Number(playerString);
-
-             const foundPlayer = players.find((p) => p.id === playerId);
-
-             selectedPlayer = foundPlayer;
-
-             render();
+            render();
         }
-        )
-    }
+    );   
+        const deleteButton = document.querySelector('#delete-button');
+        deleteButton.addEventListener('click', async () => {
+            await removePlayer(selectedPlayer.id)
+            players = await fetchPlayers()
+            selectedPlayer = null;
+            render();
+        }
     )
-}
+
+} else {
+        const formHTML = `
+            <form id="add-player-form">
+                <input type="text" name="playerName" placeholder="Name" required />
+                <input type="text" name="playerBreed" placeholder="Breed" required />
+                <button type="submit">Add to roster</button>
+            </form>
+            <hr>`;
+
+        const rosterHTML = players.map(player => {
+            return `
+            <div class="player-card">
+                <h3>${player.name}</h3>
+                <img src="${player.imageUrl}" alt="${player.name}">
+                <button class="details-button" data-id="${player.id}">See Details</button>
+            </div>`;
+        }).join('');
+
+        app.innerHTML = formHTML + rosterHTML;
+
+        const form = document.querySelector('#add-player-form');
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            
+            const newPlayerData = {
+                name: form.elements.playerName.value,
+                breed: form.elements.playerBreed.value
+            };
+
+            await addPlayer(newPlayerData);
+            players = await fetchPlayers();
+            render();
+        });
+        const buttons = document.querySelectorAll('.details-button');
+        buttons.forEach((button) => {
+            button.addEventListener('click', () => {
+                const playerId = Number(button.dataset.id);
+                selectedPlayer = players.find((p) => p.id === playerId);
+                render();
+            });
+        });
+    }
 }
 
-init();
+
+init()

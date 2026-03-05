@@ -1,0 +1,51 @@
+body {
+    background-color: rgb(13, 17, 23);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    margin: 0;
+}
+
+.player-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    margin-bottom: 2rem;
+    padding: 1rem;
+    text-align: center;
+}
+
+.player-card img {
+  width: 55vw;
+  height: 65vh;
+  border-radius: 8px;
+}
+
+.player-card button {
+    padding: 1rem;
+    margin: 1rem;
+}
+
+div.player-details {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    margin-bottom: 2rem;
+    padding: 1rem;
+    text-align: center;
+}
+
+.player-details img {
+    width: 75vw;
+    height: 85vh;
+}
+
+.player-details button {
+    padding: 2rem;
+    margin: 2rem;
+}
